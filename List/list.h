@@ -3,16 +3,28 @@
 
 #include "node.h"
 
-typedef struct{
-    int size;
+typedef unsigned int bool;
+
+typedef struct
+{
     Node *head;
     Node *last;
-}List;
+    int size;
+} List;
+
+typedef struct
+{
+    Node *current;
+} ListIterator;
 
 // cria uma lista
 List* list_construct();
 // retorna o número de elementos na lista
 int list_size(List* l);
+// retorna o primeiro node da lista
+Node* list_head(List* l);
+// retorna o ultimo node da lista
+Node* list_last(List* l);
 // adiciona um item no início da lista
 void list_push_front(List* l, data_type val);
 // mostra a lista na tela
@@ -37,5 +49,17 @@ void list_push_back(List *l, data_type data);
 data_type list_pop_back(List *l);
 // mostra a lista na tela de tras para frente
 void list_print_reverse(List* l, void (*print_fn)(data_type));
+// cria um iterador para percorrer a lista do início para o final.
+ListIterator *list_front_iterator(List *l);
+// cria um iterador para percorrer a lista do final para o início.
+ListIterator *list_back_iterator(List *l);
+// retorna o elemento do nó atual e move o iterador para o próximo nó.
+data_type *list_iterator_next(ListIterator *it);
+// retorna o elemento do nó atual e move o iterador para o nó anterior.
+data_type *list_iterator_previous(ListIterator *it);
+// verifica se o iterador chegou ao final da lista
+bool list_iterator_is_over(ListIterator *it);
+// libera a memória alocada para o iterador
+void list_iterator_destroy(ListIterator *it);
 
 #endif

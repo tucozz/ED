@@ -18,6 +18,16 @@ int list_size(List* l){
     return l->size;
 }
 
+// retorna o primeiro node da lista
+Node* list_head(List* l){
+    return l->head;
+}
+
+// retorna o ultimo node da lista
+Node* list_last(List* l){
+    return l->last;
+}
+
 // adiciona um item no início da lista
 void list_push_front(List* l, data_type val){
     Node *new_node = node_construct(val, NULL, l->head);
@@ -179,4 +189,47 @@ void list_print_reverse(List* l, void (*print_fn)(data_type)){
             printf(", ");
     }
     printf("]");
+}
+
+// cria um iterador para percorrer a lista do início para o final.
+ListIterator *list_front_iterator(List *l){
+    ListIterator *it = malloc(sizeof(ListIterator));
+    it->current = list_head(l);
+    return it;
+}
+
+// cria um iterador para percorrer a lista do final para o início.
+ListIterator *list_back_iterator(List *l){
+    ListIterator *it = malloc(sizeof(ListIterator));
+    it->current = list_last(l);
+    return it;
+}
+
+// retorna o elemento do nó atual e move o iterador para o próximo nó.
+data_type *list_iterator_next(ListIterator *it){
+    data_type *pop = &(it->current->value);
+    if(it->current != NULL)
+        it->current = it->current->next;
+    
+    return pop;
+}
+
+// retorna o elemento do nó atual e move o iterador para o nó anterior.
+data_type *list_iterator_previous(ListIterator *it){
+    data_type *pop = &(it->current->value);
+    if(it->current != NULL)
+        it->current = it->current->prev;
+    
+    return pop;
+}
+
+// verifica se o iterador chegou ao final da lista
+bool list_iterator_is_over(ListIterator *it){
+    return it->current == NULL;
+}
+
+// libera a memória alocada para o iterador
+void list_iterator_destroy(ListIterator *it){
+    free(it->current);
+    free(it);
 }
