@@ -1,30 +1,37 @@
-#include "forward_list.h"
+#include "list.h"
 #include "node.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 // cria uma lista
-ForwardList* forward_list_construct(){
-    ForwardList *lista = (ForwardList *)malloc(sizeof(lista));
+List* list_construct(){
+    List *lista = (List *)malloc(sizeof(lista));
     lista->size = 0;
     lista->head = NULL;
+    lista->last = NULL;
 
     return lista;
 }
 
 // retorna o número de elementos na lista
-int forward_list_size(ForwardList* l){
+int list_size(List* l){
     return l->size;
 }
 
 // adiciona um item no início da lista
-void forward_list_push_front(ForwardList* l, data_type val){
-    l->head = node_construct(val, l->head);
+void list_push_front(List* l, data_type val){
+    Node *new_node = node_construct(val, NULL, l->head);
+    if (l->head != NULL)
+        l->head->prev = new_node;
+    l->head = new_node;
     l->size++;
+
+    if(l->size == 1)
+        l->last = l->head;
 }
 
 // mostra a lista na tela
-void forward_list_print(ForwardList* l, void (*print_fn)(data_type)){
+void list_print(List* l, void (*print_fn)(data_type)){
     Node *n = l->head;
 
     printf("[");
@@ -39,7 +46,7 @@ void forward_list_print(ForwardList* l, void (*print_fn)(data_type)){
 }
 
 // retorna o i-ésimo elemento da lista
-data_type forward_list_get(ForwardList* l, int i){
+data_type list_get(List* l, int i){
     if(i < 0 || i > l->size)
         exit(printf("Error: index out of bounds."));
 
@@ -52,25 +59,31 @@ data_type forward_list_get(ForwardList* l, int i){
     return n->value;
 }
 // remove o primeiro elemento
-data_type forward_list_pop_front(ForwardList* l){
+data_type list_pop_front(List* l){
     if(l->head == NULL)
         exit(printf("Error: list is empty."));
 
     data_type pop = l->head->value;
     Node *n =l->head;
     l->head = l->head->next;
+    if(l->head != NULL)
+        l->head->prev = NULL;
     node_destroy(n);
+    l->size--;
+
+    if(l->size <= 1)
+        l->last = l->head;
 
     return pop;
 }
 
 // retorna uma lista contendo o reverso de outra
-ForwardList* forward_list_reverse(ForwardList* l){
-    ForwardList *l2 = forward_list_construct();
+List* list_reverse(List* l){
+    List *l2 = list_construct();
 
     Node *n = l->head;
     while(n != NULL){
-        forward_list_push_front(l2, n->value);
+        list_push_front(l2, n->value);
         n = n->next;
     }
 
@@ -78,16 +91,16 @@ ForwardList* forward_list_reverse(ForwardList* l){
 }
 
 // remove todos os nós da lista
-void forward_list_clear(ForwardList* l){
+void list_clear(List* l){
     int n_itens = l->size;
     
     for(int i = 0; i < n_itens; i++){
-        forward_list_pop_front(l);
+        list_pop_front(l);
     }
 }
 
 // libera o espaço alocado para a lista
-void forward_list_destroy(ForwardList* l){
+void list_destroy(List* l){
     Node *n = l->head;
     while (n != NULL){
         Node *next = n->next;
@@ -99,7 +112,7 @@ void forward_list_destroy(ForwardList* l){
 }
 
 // remove todas as ocorrências de um valor da lista
-void forward_list_remove(ForwardList* l, data_type val){
+void list_remove(List* l, data_type val){
     Node *n = l->head, *prev = NULL,*new_n = NULL;
     while (n != NULL) {
         if (n->value == val) {
@@ -121,11 +134,49 @@ void forward_list_remove(ForwardList* l, data_type val){
 }
 
 // adiciona os itens da lista m no início da lista l
-void forward_list_cat(ForwardList* l, ForwardList* m){
+void list_cat(List* l, List* m){
     Node *n = m->head;
 
     while(n != NULL){
-        forward_list_push_front(l, n->value);
+        list_push_front(l, n->value);
         n = n->next;
     }
+}
+
+// insere um elemento ao final 
+void list_push_back(List *l, data_type data){
+    Node *new_node = node_construct(data, l->last, NULL);
+    
+    if (l->last == NULL)
+        l->head = l->last = new_node;
+    else
+        l->last = l->last->next = new_node;
+    l->size++;
+}
+
+// remove e retorna o último elemento
+data_type list_pop_back(List *l){
+    Node *querodestruir = l->last;
+
+    querodestruir->prev->next = NULL;
+    data_type pop = querodestruir->value;
+    l->last = querodestruir->prev;
+    node_destroy(querodestruir);
+
+    return pop;
+}
+
+// mostra a lista na tela de tras para frente
+void list_print_reverse(List* l, void (*print_fn)(data_type)){
+    Node *n = l->last;
+
+    printf("[");
+    while (n != NULL){
+        print_fn(n->value);
+        n = n->prev;
+
+        if(n != NULL)
+            printf(", ");
+    }
+    printf("]");
 }

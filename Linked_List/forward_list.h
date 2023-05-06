@@ -9,7 +9,7 @@ typedef struct{
 }ForwardList;
 
 // cria uma lista
-ForwardList* forward_list_create();
+ForwardList* forward_list_construct();
 // retorna o número de elementos na lista
 int forward_list_size(ForwardList* l);
 // adiciona um item no início da lista
