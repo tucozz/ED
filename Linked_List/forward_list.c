@@ -1,10 +1,11 @@
-#include <forward_list.h>
-#include <node.h>
-#include "stdlib.h"
+#include "forward_list.h"
+#include "node.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 // cria uma lista
 ForwardList* forward_list_create(){
-    ForwardList *lista = malloc(sizeof(lista));
+    ForwardList *lista = (ForwardList *)malloc(sizeof(lista));
     lista->size = 0;
     lista->head = NULL;
 
@@ -18,8 +19,7 @@ int forward_list_size(ForwardList* l){
 
 // adiciona um item no início da lista
 void forward_list_push_front(ForwardList* l, data_type val){
-    Node *n = node_construct(val, l->head);
-    l->head = n;
+    l->head = node_construct(val, l->head);
     l->size++;
 }
 
@@ -27,16 +27,24 @@ void forward_list_push_front(ForwardList* l, data_type val){
 void forward_list_print(ForwardList* l, void (*print_fn)(data_type)){
     Node *n = l->head;
 
+    printf("[");
     while (n != NULL){
         print_fn(n->value);
         n = n->next;
+
+        if(n != NULL)
+            printf(", ");
     }
+    printf("]");
 }
 
 // retorna o i-ésimo elemento da lista
 data_type forward_list_get(ForwardList* l, int i){
+    if(i < 0 || i > l->size)
+        exit(printf("Error: index out of bounds."));
+
     Node *n = l->head;
-    
+
     for(int j=0;j<i;j++){
         n = n->next;
     }
@@ -45,27 +53,37 @@ data_type forward_list_get(ForwardList* l, int i){
 }
 // remove o primeiro elemento
 data_type forward_list_pop_front(ForwardList* l){
+    if(l->head == NULL)
+        exit(printf("Error: list is empty."));
+
     data_type pop = l->head->value;
     Node *n =l->head;
     l->head = l->head->next;
     node_destroy(n);
+
     return pop;
 }
 
 // retorna uma lista contendo o reverso de outra
 ForwardList* forward_list_reverse(ForwardList* l){
     ForwardList *l2 = forward_list_create();
-    for(int i=0; i<l->size; i++){
-        forward_list_push_front(l2, forward_list_get(l, i));
+
+    Node *n = l->head;
+    while(n != NULL){
+        forward_list_push_front(l2, n->value);
+        n = n->next;
     }
+
+    return l2;
 }
 
 // remove todos os nós da lista
 void forward_list_clear(ForwardList* l){
-    for(int i = l->size-1;i>=0;i--){
-        node_destroy(forward_list_get(l, i));
+    int n_itens = l->size;
+    
+    for(int i = 0; i < n_itens; i++){
+        forward_list_pop_front(l);
     }
-    l->head = NULL;
 }
 
 // libera o espaço alocado para a lista

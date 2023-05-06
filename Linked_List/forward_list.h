@@ -1,7 +1,7 @@
 #ifndef _DATA_STRUCTURES_LIST_H_
 #define _DATA_STRUCTURES_LIST_H_
 
-#include <node.h>
+#include "node.h"
 
 typedef struct{
     int size;

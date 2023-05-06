@@ -3,9 +3,9 @@
 
 typedef int data_type;
 
-typedef struct{
+typedef struct Node{
     data_type value;
-    Node *next;
+    struct Node *next;
 }Node;
 
 Node *node_construct(data_type value, Node *next);
