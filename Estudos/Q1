@@ -1,0 +1,66 @@
+#include <stdlib.h>
+
+typedef int data_type;
+
+typedef struct{
+    data_type *data;
+    int next;
+    int first;
+    int last;
+    int size;
+    int used;
+} Dequer;
+
+Dequer *dequer_construct(int size){
+    Dequer *d = calloc(size, sizeof(data_type));
+    d->next = 0;
+    d->first = 0;
+    d->size = size;
+    d->used = 0;
+}
+
+data_type dequer_pop_back(Dequer *d){
+    if(d->used == 0){
+        printf("INVALIDO, DEQUER VAZIO\n");
+        return 0;
+    }
+    data_type pop = d->data[d->last];
+    d->data[d->last] = 0;
+    d->last = (d->last - 1)%d->size;
+    d->next = (d->next - 1)&d->size;
+    d->used --;
+
+    return pop;
+}
+
+data_type dequer_pop_front(Dequer *d){
+    if(d->used == 0){
+        printf("INVALIDO, DEQUER VAZIO\n");
+        return 0;
+    }
+    data_type pop = d->data[d->first];
+    d->data[d->first] = 0;
+    d->first = (d->first + 1)%d->size;
+    d->used ++;
+
+    return pop;
+}
+
+void dequer_push_front(Dequer *d, data_type val){
+    if(d->used == d->size){
+        printf("INVALIDO, DEQUER CHEIO\n");
+    }
+    d->data[d->first] = val;
+    d->first = (d->first - 1)%d->size;
+    d->used++;
+}
+
+void dequer_push_back(Dequer *d, data_type val){
+    if(d->used == d->size){
+        printf("INVALIDO, DEQUER CHEIO\n");
+    }
+    d->data[d->next] = val;
+    d->next = (d->next - 1)%d->size;
+    d->last = (d->last - 1)%d->size;
+    d->used++;
+}
