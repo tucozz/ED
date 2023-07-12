@@ -9,9 +9,7 @@ KeyValPair *key_val_pair_construct(void *key, void *val){
     return kvp;
 }
 
-void key_val_pair_destroy(KeyValPair *kvp, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
-    key_destroy_fn(kvp->key);
-    val_destroy_fn(kvp->value);
+void key_val_pair_destroy(KeyValPair *kvp){
     free(kvp);
 }
 
@@ -26,7 +24,9 @@ Node *node_construct(void *key, void *value, Node *left, Node *right, Node* pare
 }
 
 void node_destroy(Node *node, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
-    key_val_pair_destroy(node->kvp, key_destroy_fn, val_destroy_fn);
+    key_destroy_fn(node->kvp->key);
+    val_destroy_fn(node->kvp->value);
+    key_val_pair_destroy(node->kvp);
     free(node);
 }
 
