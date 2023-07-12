@@ -15,11 +15,12 @@ void key_val_pair_destroy(KeyValPair *kvp, KeyDestroyFn key_destroy_fn, ValDestr
     free(kvp);
 }
 
-Node *node_construct(void *key, void *value, Node *left, Node *right){
+Node *node_construct(void *key, void *value, Node *left, Node *right, Node* parent){
     Node *node = malloc(sizeof(Node));
     node->kvp = key_val_pair_construct(key, value);
     node->right = left;
     node->left = right;
+    node->parent = parent;
 
     return node;
 }
@@ -41,17 +42,21 @@ BinaryTree *binary_tree_construct(CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, Val
 
 Node *_add_recursive(Node *node, void *key, data_type value, CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn) {
     if (node == NULL)
-        return node_construct(key, value, NULL, NULL);
+        return node_construct(key, value, NULL, NULL, NULL);
     if (cmp_fn(key, node->kvp->key) == 0){
         val_destroy_fn(node->kvp->value);
         node->kvp->value = value;
         key_destroy_fn(key);
         return node;
     }
-    if (cmp_fn(key, node->kvp->key) < 0)
+    if (cmp_fn(key, node->kvp->key) < 0){
         node->left = _add_recursive(node->left, key, value, cmp_fn, key_destroy_fn, val_destroy_fn);
-    else
+        node->left->parent = node;
+    }
+    else{
         node->right = _add_recursive(node->right, key, value, cmp_fn, key_destroy_fn, val_destroy_fn);
+        node->right->parent = node;
+    }
     return node;
 }
 

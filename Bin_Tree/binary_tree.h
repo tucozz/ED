@@ -18,6 +18,7 @@ typedef struct Node
     KeyValPair *kvp;
     struct Node *left;
     struct Node *right;
+    struct Node *parent;
 } Node;
 
 typedef struct
@@ -31,7 +32,7 @@ typedef struct
 KeyValPair *key_val_pair_construct(void *key, void *val);
 void key_val_pair_destroy(KeyValPair *kvp, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn);
 
-Node *node_construct(void *key, void *value, Node *left, Node *right);
+Node *node_construct(void *key, void *value, Node *left, Node *right, Node* parent);
 void node_destroy(Node *node, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn);
 
 BinaryTree *binary_tree_construct(
