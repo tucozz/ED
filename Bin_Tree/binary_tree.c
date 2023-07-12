@@ -23,6 +23,7 @@ Node *node_construct(void *key, void *value, Node *left, Node *right){
 }
 
 void node_destroy(Node *node){
+    key_val_pair_destroy(node->kvp);
     free(node);
 }
 
@@ -74,20 +75,20 @@ void *binary_tree_get_recursive(Node *current, void *key, CmpFn cmp_fn){
     if(current == NULL || cmp_fn(current->kvp->key, key) == 0)
         return current;
     //isso assume que a funcao funciona apontando pra quem eh maior
-    else if(cmp_fn(current->kvp->key, key) < 0)
+    else if(cmp_fn(current->kvp->key, key) > 0)
         return binary_tree_get_recursive(current->left, key, cmp_fn);
     else
         return binary_tree_get_recursive(current->right, key, cmp_fn);    
 }
 
 void *binary_tree_get(BinaryTree *bt, void *key){
-    return binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
+    Node *result = binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
+    if(result)
+        return result->kvp->value;
+    return NULL;
 }
 
 void binary_tree_destroy(BinaryTree *bt){
-    free(bt->cmp_fn);
-    free(bt->key_destroy_fn);
-    free(bt->val_destroy_fn);
     free(bt);
 }
 
