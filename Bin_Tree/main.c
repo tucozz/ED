@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,37 +5,42 @@
 
 typedef struct
 {
-    char *name;
-    char *cpf;
-    int idade;
-    float altura;
-} Person;
+    int x, y;
+} Cell;
 
-Person *person_construct(const char *name, const char *cpf, int idade, float altura)
+Cell *cell_construct(int x, int y)
 {
-    Person *p = (Person *)calloc(1, sizeof(Person));
+    Cell *p = (Cell *)calloc(1, sizeof(Cell));
 
-    p->name = (char *)calloc(strlen(name) + 1, sizeof(char));
-    p->cpf = (char *)calloc(strlen(cpf) + 1, sizeof(char));
-    p->idade = idade;
-    p->altura = altura;
-
-    memcpy(p->name, name, (strlen(name) + 1) * sizeof(char));
-    memcpy(p->cpf, cpf, (strlen(cpf) + 1) * sizeof(char));
+    p->x = x;
+    p->y = y;
 
     return p;
 }
 
-void person_destroy(Person *p)
+void cell_destroy(Cell *c)
 {
-    free(p->name);
-    free(p->cpf);
-    free(p);
+    free(c);
 }
 
 int cmp_fn(void *a, void *b)
 {
-    return strcmp(a, b);
+    Cell *cell_a = a;
+    Cell *cell_b = b;
+
+    if (cell_a->y < cell_b->y)
+        return -1;
+    else if (cell_a->y > cell_b->y)
+        return 1;
+    else
+    {
+        if (cell_a->x < cell_b->x)
+            return -1;
+        else if (cell_a->x > cell_b->x)
+            return 1;
+        else
+            return 0;
+    }
 }
 
 void key_destroy_fn(void *key)
@@ -46,16 +50,20 @@ void key_destroy_fn(void *key)
 
 void val_destroy_fn(void *val)
 {
-    person_destroy((Person *)val);
+    cell_destroy(val);
+}
+
+int *new_int(int idx)
+{
+    int *p = (int *)calloc(1, sizeof(int));
+    *p = idx;
+    return p;
 }
 
 int main()
 {
-    int i, n, idade;
-    float altura;
+    int i, n, idx, x, y;
     char op[20];
-    char cpf[100];
-    char nome[100];
 
     scanf("%d", &n);
 
@@ -67,14 +75,16 @@ int main()
 
         if (!strcmp(op, "SET"))
         {
-            scanf("%s %s %d %f", cpf, nome, &idade, &altura);
-            binary_tree_add(bt, strdup(cpf), person_construct(nome, cpf, idade, altura));
+            scanf("%d %d %d", &x, &y, &idx);
+            binary_tree_add(bt, cell_construct(x, y), new_int(idx));
         }
         else
         {
-            scanf("%s", cpf);
-            Person *p = binary_tree_get(bt, cpf);
-            printf("%s %d %.2f\n", p->name, p->idade, p->altura);
+            scanf("%d %d", &x, &y);
+            Cell *c = cell_construct(x, y);
+            int *p = binary_tree_get(bt, c);
+            printf("%d\n", *p);
+            cell_destroy(c);
         }
     }
 

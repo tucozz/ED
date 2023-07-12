@@ -39,18 +39,24 @@ BinaryTree *binary_tree_construct(CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, Val
     return bn;
 }
 
-Node *_add_recursive(Node *node, void *key, data_type value, CmpFn cmp_fn) {
+Node *_add_recursive(Node *node, void *key, data_type value, CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn) {
     if (node == NULL)
         return node_construct(key, value, NULL, NULL);
+    if (cmp_fn(key, node->kvp->key) == 0){
+        val_destroy_fn(node->kvp->value);
+        node->kvp->value = value;
+        key_destroy_fn(key);
+        return node;
+    }
     if (cmp_fn(key, node->kvp->key) < 0)
-        node->left = _add_recursive(node->left, key, value, cmp_fn);
+        node->left = _add_recursive(node->left, key, value, cmp_fn, key_destroy_fn, val_destroy_fn);
     else
-        node->right = _add_recursive(node->right, key, value, cmp_fn);
+        node->right = _add_recursive(node->right, key, value, cmp_fn, key_destroy_fn, val_destroy_fn);
     return node;
 }
 
 void binary_tree_add(BinaryTree *bt, void *key, void *value){
-    bt->root = _add_recursive(bt->root, key, value, bt->cmp_fn);
+    bt->root = _add_recursive(bt->root, key, value, bt->cmp_fn, bt->key_destroy_fn, bt->val_destroy_fn);
 }
 
 int binary_tree_empty(BinaryTree *bt);
