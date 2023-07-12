@@ -18,7 +18,7 @@ typedef struct
 
 VectorIterator *vector_it_construct(Vector *v);
 data_type vector_it_next(VectorIterator *it);
-bool vector_it_has_next(VectorIterator *it);
+int vector_it_has_next(VectorIterator *it);
 void vector_it_destroy(VectorIterator *it);
 
 // Cria um vetor vazio

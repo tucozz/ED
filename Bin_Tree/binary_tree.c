@@ -1,19 +1,30 @@
 #include "binary_tree.h"
-#include <stdio.h>
+#include <stdlib.h>
 
-KeyValPair *key_val_pair_construct(void *key, void *val);
-void key_val_pair_destroy(KeyValPair *kvp);
+KeyValPair *key_val_pair_construct(void *key, void *val){
+    KeyValPair *kvp = malloc(sizeof(KeyValPair));
+    kvp->key = key;
+    kvp->value = val;
+
+    return kvp;
+}
+
+void key_val_pair_destroy(KeyValPair *kvp){
+    free(kvp);
+}
 
 Node *node_construct(void *key, void *value, Node *left, Node *right){
     Node *node = malloc(sizeof(Node));
-    node->key = key;
-    node->value = value;
+    node->kvp = key_val_pair_construct(key, value);
     node->right = left;
     node->left = right;
 
     return node;
 }
-void node_destroy(Node *node);
+
+void node_destroy(Node *node){
+    free(node);
+}
 
 BinaryTree *binary_tree_construct(CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
     BinaryTree *bn = malloc(sizeof(BinaryTree));
@@ -25,26 +36,60 @@ BinaryTree *binary_tree_construct(CmpFn cmp_fn, KeyDestroyFn key_destroy_fn, Val
     return bn;
 }
 
-void binary_tree_add(BinaryTree *bt, void *key, void *value);
+Node *_add_recursive(Node *node, void *key, data_type value, CmpFn cmp_fn) {
+    if (node == NULL)
+        return node_construct(key, value, NULL, NULL);
+    if (cmp_fn(key, node->kvp->key) < 0)
+        node->left = _add_recursive(node->left, key, value, cmp_fn);
+    else
+        node->right = _add_recursive(node->right, key, value, cmp_fn);
+    return node;
+}
+
+void binary_tree_add(BinaryTree *bt, void *key, void *value){
+    bt->root = _add_recursive(bt->root, key, value, bt->cmp_fn);
+}
+
 int binary_tree_empty(BinaryTree *bt);
 void binary_tree_remove(BinaryTree *bt, void *key);
-KeyValPair *binary_tree_min(BinaryTree *bt);
-KeyValPair *binary_tree_max(BinaryTree *bt);
+
+KeyValPair *binary_tree_min(BinaryTree *bt){
+    Node *node = bt->root;
+    while(node->left != NULL)
+        node = node->left;
+    return node->kvp;
+}
+
+KeyValPair *binary_tree_max(BinaryTree *bt){
+    Node *node = bt->root;
+    while(node->right != NULL)
+        node = node->right;
+    return node->kvp;
+}
+
 KeyValPair *binary_tree_pop_min(BinaryTree *bt);
 KeyValPair *binary_tree_pop_max(BinaryTree *bt);
 
-void *binary_tree_get(BinaryTree *bt, void *key){
-    Node *current = bt->root;
-    if(current == NULL || bt->cmp_fn(current->key, key) == 0)
+void *binary_tree_get_recursive(Node *current, void *key, CmpFn cmp_fn){
+    if(current == NULL || cmp_fn(current->kvp->key, key) == 0)
         return current;
     //isso assume que a funcao funciona apontando pra quem eh maior
-    else if(bt->cmp_fn(current, key) < 0)
-        return binary_tree_peek_recursive(current->left, bt->cmp_fn);
+    else if(cmp_fn(current->kvp->key, key) < 0)
+        return binary_tree_get_recursive(current->left, key, cmp_fn);
     else
-        return binary_tree_peek_recursive(current->right, bt->cmp_fn);    
+        return binary_tree_get_recursive(current->right, key, cmp_fn);    
 }
 
-void binary_tree_destroy(BinaryTree *bt);
+void *binary_tree_get(BinaryTree *bt, void *key){
+    return binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
+}
+
+void binary_tree_destroy(BinaryTree *bt){
+    free(bt->cmp_fn);
+    free(bt->key_destroy_fn);
+    free(bt->val_destroy_fn);
+    free(bt);
+}
 
 // a funcao abaixo pode ser util para debug, mas nao eh obrigatoria.
 // void binary_tree_print(BinaryTree *bt);

@@ -247,7 +247,7 @@ data_type vector_it_next(VectorIterator *it)
     return data;
 }
 
-bool vector_it_has_next(VectorIterator *it)
+int vector_it_has_next(VectorIterator *it)
 {
     return it->i < it->v->size;
 }
