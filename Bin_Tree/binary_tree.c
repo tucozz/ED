@@ -9,7 +9,9 @@ KeyValPair *key_val_pair_construct(void *key, void *val){
     return kvp;
 }
 
-void key_val_pair_destroy(KeyValPair *kvp){
+void key_val_pair_destroy(KeyValPair *kvp, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
+    key_destroy_fn(kvp->key);
+    val_destroy_fn(kvp->value);
     free(kvp);
 }
 
@@ -22,8 +24,8 @@ Node *node_construct(void *key, void *value, Node *left, Node *right){
     return node;
 }
 
-void node_destroy(Node *node){
-    key_val_pair_destroy(node->kvp);
+void node_destroy(Node *node, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
+    key_val_pair_destroy(node->kvp, key_destroy_fn, val_destroy_fn);
     free(node);
 }
 
@@ -88,7 +90,16 @@ void *binary_tree_get(BinaryTree *bt, void *key){
     return NULL;
 }
 
+void binary_tree_destroy_recursive(Node *node, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
+    if(node == NULL)
+        return;
+    binary_tree_destroy_recursive(node->left, key_destroy_fn, val_destroy_fn);
+    binary_tree_destroy_recursive(node->right, key_destroy_fn, val_destroy_fn);
+    node_destroy(node, key_destroy_fn, val_destroy_fn);
+}
+
 void binary_tree_destroy(BinaryTree *bt){
+    binary_tree_destroy_recursive(bt->root, bt->key_destroy_fn, bt->val_destroy_fn);
     free(bt);
 }
 
