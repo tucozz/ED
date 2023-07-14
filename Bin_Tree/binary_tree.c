@@ -64,8 +64,42 @@ void binary_tree_add(BinaryTree *bt, void *key, void *value){
     bt->root = _add_recursive(bt->root, key, value, bt->cmp_fn, bt->key_destroy_fn, bt->val_destroy_fn);
 }
 
-int binary_tree_empty(BinaryTree *bt);
-void binary_tree_remove(BinaryTree *bt, void *key);
+int binary_tree_empty(BinaryTree *bt){return bt->root == NULL;}
+
+void Transplant(BinaryTree *T, Node *u, Node *v){
+    if(u->parent == NULL)
+        T->root = v;
+    else if(u == u->parent->left)
+        u->parent->left = v;
+    else
+        u->parent->right = v;
+    if(v != NULL)
+        v->parent = u->parent;
+}
+
+void binary_tree_delete(BinaryTree *T, Node *z){
+    Node *y = NULL;
+    if(z->left == NULL)
+        Transplant(T, z, z->right);
+    else if(z->right == NULL)
+        Transplant(T, z, z->left);
+    else
+        //problema: como enviar uma arvore aqui ao inves do node
+        y = binary_tree_min(z->right); 
+    if(y->parent != z){
+        Transplant(T, y, y->right);
+        y->right = z->right;
+        y->right->parent = y;
+    }
+    Transplant(T, z, y);
+    y->left = z->left;
+    y->left->parent = y;
+    
+}
+
+void binary_tree_remove(BinaryTree *bt, void *key){
+
+}
 
 KeyValPair *binary_tree_min(BinaryTree *bt){
     Node *node = bt->root;
