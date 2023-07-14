@@ -66,6 +66,23 @@ void binary_tree_add(BinaryTree *bt, void *key, void *value){
 
 int binary_tree_empty(BinaryTree *bt){return bt->root == NULL;}
 
+void *binary_tree_get_recursive(Node *current, void *key, CmpFn cmp_fn){
+    if(current == NULL || cmp_fn(current->kvp->key, key) == 0)
+        return current;
+    //isso assume que a funcao funciona apontando pra quem eh maior
+    else if(cmp_fn(current->kvp->key, key) > 0)
+        return binary_tree_get_recursive(current->left, key, cmp_fn);
+    else
+        return binary_tree_get_recursive(current->right, key, cmp_fn);    
+}
+
+void *binary_tree_get(BinaryTree *bt, void *key){
+    Node *result = binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
+    if(result)
+        return result->kvp->value;
+    return NULL;
+}
+
 void Transplant(BinaryTree *T, Node *u, Node *v){
     if(u->parent == NULL)
         T->root = v;
@@ -77,28 +94,34 @@ void Transplant(BinaryTree *T, Node *u, Node *v){
         v->parent = u->parent;
 }
 
+Node *Node_min(Node* node){
+    while(node->left != NULL)
+        node = node->left;
+    return node;
+}
+
 void binary_tree_delete(BinaryTree *T, Node *z){
     Node *y = NULL;
     if(z->left == NULL)
         Transplant(T, z, z->right);
     else if(z->right == NULL)
         Transplant(T, z, z->left);
-    else
-        //problema: como enviar uma arvore aqui ao inves do node
-        y = binary_tree_min(z->right); 
-    if(y->parent != z){
-        Transplant(T, y, y->right);
-        y->right = z->right;
-        y->right->parent = y;
+    else{
+        y = Node_min(z->right); 
+        if(y->parent != z){
+            Transplant(T, y, y->right);
+            y->right = z->right;
+            y->right->parent = y;
+        }
+        Transplant(T, z, y);
+        y->left = z->left;
+        y->left->parent = y;
     }
-    Transplant(T, z, y);
-    y->left = z->left;
-    y->left->parent = y;
-    
 }
 
 void binary_tree_remove(BinaryTree *bt, void *key){
-
+    Node *result = binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
+    binary_tree_delete(bt, result);
 }
 
 KeyValPair *binary_tree_min(BinaryTree *bt){
@@ -117,23 +140,6 @@ KeyValPair *binary_tree_max(BinaryTree *bt){
 
 KeyValPair *binary_tree_pop_min(BinaryTree *bt);
 KeyValPair *binary_tree_pop_max(BinaryTree *bt);
-
-void *binary_tree_get_recursive(Node *current, void *key, CmpFn cmp_fn){
-    if(current == NULL || cmp_fn(current->kvp->key, key) == 0)
-        return current;
-    //isso assume que a funcao funciona apontando pra quem eh maior
-    else if(cmp_fn(current->kvp->key, key) > 0)
-        return binary_tree_get_recursive(current->left, key, cmp_fn);
-    else
-        return binary_tree_get_recursive(current->right, key, cmp_fn);    
-}
-
-void *binary_tree_get(BinaryTree *bt, void *key){
-    Node *result = binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
-    if(result)
-        return result->kvp->value;
-    return NULL;
-}
 
 void binary_tree_destroy_recursive(Node *node, KeyDestroyFn key_destroy_fn, ValDestroyFn val_destroy_fn){
     if(node == NULL)
