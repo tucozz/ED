@@ -122,6 +122,7 @@ void binary_tree_delete(BinaryTree *T, Node *z){
 void binary_tree_remove(BinaryTree *bt, void *key){
     Node *result = binary_tree_get_recursive(bt->root, key, bt->cmp_fn);
     binary_tree_delete(bt, result);
+    node_destroy(result, bt->key_destroy_fn, bt->val_destroy_fn);
 }
 
 KeyValPair *binary_tree_min(BinaryTree *bt){
