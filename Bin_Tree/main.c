@@ -61,7 +61,7 @@ int main()
         binary_tree_add(bt, strdup(nome), person_construct(nome, idade, altura));
     }
 
-    Vector *v = binary_tree_inorder_traversal_recursive(bt);
+    Vector *v = binary_tree_postorder_traversal_recursive(bt);
 
     for (i = 0; i < vector_size(v); i++)
     {
