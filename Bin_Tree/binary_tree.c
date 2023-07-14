@@ -178,7 +178,20 @@ Vector *binary_tree_preorder_traversal(BinaryTree *bt);
 Vector *binary_tree_postorder_traversal(BinaryTree *bt);
 Vector *binary_tree_levelorder_traversal(BinaryTree *bt);
 
-Vector *binary_tree_inorder_traversal_recursive(BinaryTree *bt);
+void inorder_recursive_aux(Node *n, Vector *v){
+    if(n == NULL)
+        return;
+    inorder_recursive_aux(n->left, v);
+    vector_push_back(v, n->kvp);
+    inorder_recursive_aux(n->right, v);
+}
+
+Vector *binary_tree_inorder_traversal_recursive(BinaryTree *bt){
+    Vector *vector = vector_construct();
+    inorder_recursive_aux(bt->root, vector);
+    return vector;
+}
+
 Vector *binary_tree_preorder_traversal_recursive(BinaryTree *bt);
 Vector *binary_tree_postorder_traversal_recursive(BinaryTree *bt);
 
