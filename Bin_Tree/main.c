@@ -6,42 +6,33 @@
 
 typedef struct
 {
-    int x, y;
-} Cell;
+    char *name;
+    int idade;
+    float altura;
+} Person;
 
-Cell *cell_construct(int x, int y)
+Person *person_construct(const char *name, int idade, float altura)
 {
-    Cell *p = (Cell *)calloc(1, sizeof(Cell));
+    Person *p = (Person *)calloc(1, sizeof(Person));
 
-    p->x = x;
-    p->y = y;
+    p->name = (char *)calloc(strlen(name) + 1, sizeof(char));
+    p->idade = idade;
+    p->altura = altura;
+
+    memcpy(p->name, name, (strlen(name) + 1) * sizeof(char));
 
     return p;
 }
 
-void cell_destroy(Cell *c)
+void person_destroy(Person *p)
 {
-    free(c);
+    free(p->name);
+    free(p);
 }
 
 int cmp_fn(void *a, void *b)
 {
-    Cell *cell_a = a;
-    Cell *cell_b = b;
-
-    if (cell_a->y < cell_b->y)
-        return -1;
-    else if (cell_a->y > cell_b->y)
-        return 1;
-    else
-    {
-        if (cell_a->x < cell_b->x)
-            return -1;
-        else if (cell_a->x > cell_b->x)
-            return 1;
-        else
-            return 0;
-    }
+    return strcmp(a, b);
 }
 
 void key_destroy_fn(void *key)
@@ -51,20 +42,15 @@ void key_destroy_fn(void *key)
 
 void val_destroy_fn(void *val)
 {
-    cell_destroy(val);
-}
-
-int *new_int(int idx)
-{
-    int *p = (int *)calloc(1, sizeof(int));
-    *p = idx;
-    return p;
+    person_destroy((Person *)val);
 }
 
 int main()
 {
-    int i, n, idx, x, y;
+    int i, n, idade;
+    float altura;
     char op[20];
+    char nome[100];
 
     scanf("%d", &n);
 
@@ -76,16 +62,21 @@ int main()
 
         if (!strcmp(op, "SET"))
         {
-            scanf("%d %d %d", &x, &y, &idx);
-            binary_tree_add(bt, cell_construct(x, y), new_int(idx));
+            scanf("%s %d %f", nome, &idade, &altura);
+            binary_tree_add(bt, strdup(nome), person_construct(nome, idade, altura));
         }
         else
         {
-            scanf("%d %d", &x, &y);
-            Cell *c = cell_construct(x, y);
-            int *p = binary_tree_get(bt, c);
-            printf("%d\n", *p);
-            cell_destroy(c);
+            KeyValPair *pair;
+
+            if (!strcmp(op, "MAX"))
+                pair = binary_tree_max(bt);
+            else
+                pair = binary_tree_min(bt);
+
+            Person *p = pair->value;
+            printf("%s %d %.2f\n", p->name, p->idade, p->altura);
+            //key_val_pair_destroy(pair);
         }
     }
 
