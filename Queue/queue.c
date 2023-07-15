@@ -18,7 +18,7 @@ static void node_destroy(Node *n){
 }
 
 static Node *node_construct(data_type val, Node* next){
-    Node *n = (Node *)malloc(sizeof(n));
+    Node *n = (Node *)malloc(sizeof(Node));
     n->data = val;
     n->next = (struct Node*)next;
 
@@ -27,7 +27,7 @@ static Node *node_construct(data_type val, Node* next){
 
 // cria uma queue
 Queue *queue_construct(){
-    Queue *q = (Queue*)malloc(sizeof(q));
+    Queue *q = (Queue*)malloc(sizeof(Queue));
     q->size = 0;
     q->head = NULL;
     q->last = NULL;
@@ -61,6 +61,8 @@ data_type queue_dequeue(Queue *queue){
     queue->head = (Node *)queue->head->next;
     node_destroy(n);
     queue->size--;
+    if(queue->head == NULL)
+        queue->last = NULL;
 
     return pop;
 }
