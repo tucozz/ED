@@ -1,4 +1,5 @@
 #include "binary_tree.h"
+#include "queue.h"
 #include <stdlib.h>
 
 KeyValPair *key_val_pair_construct(void *key, void *val){
@@ -242,7 +243,26 @@ Vector *binary_tree_postorder_traversal(BinaryTree *bt){
     return saida;
 }
 
-Vector *binary_tree_levelorder_traversal(BinaryTree *bt);
+Vector *binary_tree_levelorder_traversal(BinaryTree *bt){
+    Vector *saida = vector_construct();
+    //poderia usar um vector aqui, mas nao seria constante
+    Queue *queue = queue_construct();
+    queue_enqueue(queue, bt->root);
+    while(!queue_empty(queue)){
+        Node *node = queue_dequeue(queue);
+        if(node != NULL){
+            vector_push_back(saida, node->kvp);
+            if(node->left != NULL)
+                queue_enqueue(queue, node->left);
+            if(node->right != NULL)
+                queue_enqueue(queue, node->right);
+        }
+    }
+
+    queue_destroy(queue);
+
+    return saida;
+}
 
 void inorder_recursive_aux(Node *n, Vector *v){
     if(n == NULL)
