@@ -173,9 +173,52 @@ void binary_tree_destroy(BinaryTree *bt){
 // a funcao abaixo pode ser util para debug, mas nao eh obrigatoria.
 // void binary_tree_print(BinaryTree *bt);
 
-Vector *binary_tree_inorder_traversal(BinaryTree *bt);
-Vector *binary_tree_preorder_traversal(BinaryTree *bt);
-Vector *binary_tree_postorder_traversal(BinaryTree *bt);
+Vector *binary_tree_inorder_traversal(BinaryTree *bt){
+    //usamos um vector como stack para evitar mais arquivos necessarios
+    Vector *stack = vector_construct();
+    Vector *saida = vector_construct();
+    Node *current = bt->root;
+    int is_over = 0;
+    while(!is_over){
+        while(current != NULL){
+            vector_push_back(stack, current);
+            current = current->left;
+        }
+        if(!vector_size(stack))
+            is_over = 1;
+        else{
+            Node *node = vector_pop_back(stack);
+            vector_push_back(saida, node->kvp);
+            current = node->right;
+        }
+    }
+    vector_destroy(stack);
+    return saida;
+}
+
+Vector *binary_tree_preorder_traversal(BinaryTree *bt){
+    if(bt->root == NULL)
+        return NULL;
+    Vector *saida = vector_construct();
+    //usamos um vector como stack para evitar mais arquivos necessarios
+    Vector *stack = vector_construct();
+    vector_push_back(stack, bt->root);
+    while(vector_size(stack)){
+        Node *node = vector_pop_back(stack);
+        vector_push_back(saida, node->kvp);
+        if(node->right != NULL)
+            vector_push_back(stack, node->right);
+        if(node->left != NULL)
+            vector_push_back(stack, node->left);
+    }
+    vector_destroy(stack);
+    return saida;
+}
+
+Vector *binary_tree_postorder_traversal(BinaryTree *bt){
+
+}
+
 Vector *binary_tree_levelorder_traversal(BinaryTree *bt);
 
 void inorder_recursive_aux(Node *n, Vector *v){
