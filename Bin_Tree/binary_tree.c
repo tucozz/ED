@@ -216,7 +216,30 @@ Vector *binary_tree_preorder_traversal(BinaryTree *bt){
 }
 
 Vector *binary_tree_postorder_traversal(BinaryTree *bt){
+    //usamos um vector como stack para evitar mais arquivos necessarios
+    Vector *Q1 = vector_construct();
+    Vector *Q2 = vector_construct();
 
+    vector_push_back(Q1, bt->root);
+
+    while(vector_size(Q1)){
+        Node *node = vector_pop_back(Q1);
+        if(node->left != NULL)
+            vector_push_back(Q1, node->left);
+        if(node->right != NULL)
+            vector_push_back(Q1, node->right);
+        vector_push_back(Q2, node);
+    }
+
+    Vector *saida = vector_construct();
+
+    while(vector_size(Q2))
+        vector_push_back(saida, ((Node *)vector_pop_back(Q2))->kvp);
+
+    vector_destroy(Q1);
+    vector_destroy(Q2);
+
+    return saida;
 }
 
 Vector *binary_tree_levelorder_traversal(BinaryTree *bt);
